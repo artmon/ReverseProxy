@@ -42,7 +42,7 @@ public class ReverseProxyMiddleware
                 {
                     _countSendBoc++;
 
-                    if (_countSendBoc % 2 != 0)
+                    if (_countSendBoc % 3 != 0)
                     {
                         var bytes = Encoding.UTF8.GetBytes("""{"ok":true,"result":{"@type":"ok","@extra":"1697718487.2204423:0:0.08746014090898802"},"jsonrpc":"2.0","id":"1"}""");
                         await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
