@@ -13,6 +13,7 @@ public class ReverseProxyMiddleware
     private static readonly HttpClient _httpClient = new HttpClient();
     private readonly RequestDelegate _nextMiddleware;
     private int _countSendBoc = 0;
+    private int _countShards = 0;
 
     public ReverseProxyMiddleware(RequestDelegate nextMiddleware)
     {
@@ -42,9 +43,22 @@ public class ReverseProxyMiddleware
                 {
                     _countSendBoc++;
 
-                    if (_countSendBoc % 3 != 0)
+                    if (_countSendBoc % 10 != 0)
                     {
                         var bytes = Encoding.UTF8.GetBytes("""{"ok":true,"result":{"@type":"ok","@extra":"1697718487.2204423:0:0.08746014090898802"},"jsonrpc":"2.0","id":"1"}""");
+                        await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
+                        return;
+                    }
+                }
+
+                if (json.method.Equals("shards", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    _countShards++;
+
+                    if (_countSendBoc % 200 != 0)
+                    {
+                        var bytes = Encoding.UTF8.GetBytes(
+                            """{"ok":true,"result":{"@type":"blocks.shards","shards":[{"@type":"ton.blockIdExt","workchain":0,"shard":"-9223372036854775808","seqno":15264075,"root_hash":"ac3LqPDNTS0/1TqAPswX39JQqbXzzM+A/Q8rwWWa28E=","file_hash":"xHbEhOhs8hRe1ibdx84XcTG7gva1V4N+RTJ21GLgKdc="}],"@extra":"1698239281.1026263:0:0.89665821804565"},"jsonrpc":"2.0","id":"1"}""");
                         await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
                         return;
                     }
