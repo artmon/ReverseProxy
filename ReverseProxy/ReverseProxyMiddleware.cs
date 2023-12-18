@@ -14,6 +14,7 @@ public class ReverseProxyMiddleware
     private readonly RequestDelegate _nextMiddleware;
     private int _countSendBoc = 0;
     private int _countShards = 0;
+    private Random _random = new Random();
 
     public ReverseProxyMiddleware(RequestDelegate nextMiddleware)
     {
@@ -22,7 +23,8 @@ public class ReverseProxyMiddleware
 
     public async Task Invoke(HttpContext context)
     {
-        var targetUri = new Uri("http://localhost/jsonRPC"); //BuildTargetUri(context.Request);
+        var targetUri = new Uri("http://127.0.0.1/jsonRPC"); //BuildTargetUri(context.Request);
+         //var targetUri = new Uri("http://127.0.0.1:8081/jsonRPC"); //BuildTargetUri(context.Request);
 
         if (targetUri != null)
         {
@@ -39,30 +41,30 @@ public class ReverseProxyMiddleware
             {
                 var json = JsonSerializer.Deserialize<RequestBody>(body, new JsonSerializerOptions { PropertyNameCaseInsensitive = false });
 
-                if (json.method.Equals("SendBoc", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    _countSendBoc++;
+                // if (json.method.Equals("SendBoc", StringComparison.InvariantCultureIgnoreCase))
+                // {
+                //     _countSendBoc++;
+                //
+                //     if (_countSendBoc % _random.Next(1, 6) != 0)
+                //     {
+                //         var bytes = Encoding.UTF8.GetBytes("""{"ok":true,"result":{"@type":"ok","@extra":"1697718487.2204423:0:0.08746014090898802"},"jsonrpc":"2.0","id":"1"}""");
+                //         await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
+                //         return;
+                //     }
+                // }
 
-                    if (_countSendBoc % 10 != 0)
-                    {
-                        var bytes = Encoding.UTF8.GetBytes("""{"ok":true,"result":{"@type":"ok","@extra":"1697718487.2204423:0:0.08746014090898802"},"jsonrpc":"2.0","id":"1"}""");
-                        await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
-                        return;
-                    }
-                }
-
-                if (json.method.Equals("shards", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    _countShards++;
-
-                    if (_countSendBoc % 200 != 0)
-                    {
-                        var bytes = Encoding.UTF8.GetBytes(
-                            """{"ok":true,"result":{"@type":"blocks.shards","shards":[{"@type":"ton.blockIdExt","workchain":0,"shard":"-9223372036854775808","seqno":15264075,"root_hash":"ac3LqPDNTS0/1TqAPswX39JQqbXzzM+A/Q8rwWWa28E=","file_hash":"xHbEhOhs8hRe1ibdx84XcTG7gva1V4N+RTJ21GLgKdc="}],"@extra":"1698239281.1026263:0:0.89665821804565"},"jsonrpc":"2.0","id":"1"}""");
-                        await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
-                        return;
-                    }
-                }
+                // if (json.method.Equals("shards", StringComparison.InvariantCultureIgnoreCase))
+                // {
+                //     _countShards++;
+                //
+                //     if (_countSendBoc % 200 != 0)
+                //     {
+                //         var bytes = Encoding.UTF8.GetBytes(
+                //             """{"ok":true,"result":{"@type":"blocks.shards","shards":[{"@type":"ton.blockIdExt","workchain":0,"shard":"-9223372036854775808","seqno":15264075,"root_hash":"ac3LqPDNTS0/1TqAPswX39JQqbXzzM+A/Q8rwWWa28E=","file_hash":"xHbEhOhs8hRe1ibdx84XcTG7gva1V4N+RTJ21GLgKdc="}],"@extra":"1698239281.1026263:0:0.89665821804565"},"jsonrpc":"2.0","id":"1"}""");
+                //         await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
+                //         return;
+                //     }
+                // }
             }
 
             var targetRequestMessage = CreateTargetMessage(context, targetUri);
