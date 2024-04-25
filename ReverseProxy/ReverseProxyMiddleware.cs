@@ -41,17 +41,17 @@ public class ReverseProxyMiddleware
             {
                 var json = JsonSerializer.Deserialize<RequestBody>(body, new JsonSerializerOptions { PropertyNameCaseInsensitive = false });
 
-                // if (json.method.Equals("SendBoc", StringComparison.InvariantCultureIgnoreCase))
-                // {
-                //     _countSendBoc++;
-                //
-                //     if (_countSendBoc % _random.Next(1, 6) != 0)
-                //     {
-                //         var bytes = Encoding.UTF8.GetBytes("""{"ok":true,"result":{"@type":"ok","@extra":"1697718487.2204423:0:0.08746014090898802"},"jsonrpc":"2.0","id":"1"}""");
-                //         await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
-                //         return;
-                //     }
-                // }
+                if (json.method.Equals("SendBoc", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    _countSendBoc++;
+                
+                    // if (_countSendBoc % _random.Next(1, 6) != 0)
+                    // {
+                        var bytes = Encoding.UTF8.GetBytes("""{"ok":true,"result":{"@type":"ok","@extra":"1697718487.2204423:0:0.08746014090898802"},"jsonrpc":"2.0","id":"1"}""");
+                        await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
+                        return;
+                    // }
+                }
 
                 // if (json.method.Equals("shards", StringComparison.InvariantCultureIgnoreCase))
                 // {
@@ -65,6 +65,14 @@ public class ReverseProxyMiddleware
                 //         return;
                 //     }
                 // }
+                
+                if (json.method.Equals("estimateFee", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    
+                    var bytes = Encoding.UTF8.GetBytes("""{"ok":true,"result":{"@type":"query.fees","source_fees":{"@type":"fees","in_fwd_fee":603200,"storage_fee":1,"gas_fee":0,"fwd_fee":0},"destination_fees":[],"@extra":"1714044475.2637854:1:0.0023233219538612015"},"jsonrpc":"2.0","id":"1"}""");
+                    await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
+                    return;
+                }
             }
 
             var targetRequestMessage = CreateTargetMessage(context, targetUri);
