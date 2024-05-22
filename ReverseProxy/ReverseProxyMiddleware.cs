@@ -40,17 +40,29 @@ public class ReverseProxyMiddleware
             if (!string.IsNullOrWhiteSpace(body))
             {
                 var json = JsonSerializer.Deserialize<RequestBody>(body, new JsonSerializerOptions { PropertyNameCaseInsensitive = false });
-
-                if (json.method.Equals("SendBoc", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    _countSendBoc++;
+                //
+                // if (json.method.Equals("SendBoc", StringComparison.InvariantCultureIgnoreCase))
+                // {
+                //     _countSendBoc++;
+                //
+                //     // if (_countSendBoc % _random.Next(1, 6) != 0)
+                //     // {
+                //         var bytes = 
+                //             Encoding.UTF8.GetBytes("""{"ok":false,"error":"LITE_SERVER_UNKNOWN: cannot apply external message to current state : External message was not accepted\nCannot run message on account: inbound external message rejected by transaction E1ECB7C102EA3DB3ADD7713CF3058D93A6BAD8BD6B38F83747ACEB76736A5D6D:\nexitcode=35, steps=20, gas_used=0\nVM Log (truncated):\n...ute IFJMP\nexecute INC\nexecute THROWIF 32\nexecute PUSHPOW2 9\nexecute LDSLICEX\nexecute DUP\nexecute LDU 32\nexecute LDU 32\nexecute LDU 32\nexecute NOW\nexecute XCHG s1,s3\nexecute LEQ\nexecute THROWIF 35\ndefault exception handler, terminating vm with exit code 35\n","code":500}""");
+                //             //Encoding.UTF8.GetBytes("""{"ok":true,"result":{"@type":"ok","@extra":"1697718487.2204423:0:0.08746014090898802"},"jsonrpc":"2.0","id":"1"}""");
+                //         await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
+                //         return;
+                //     // }
+                // }
+                //
                 
-                    // if (_countSendBoc % _random.Next(1, 6) != 0)
-                    // {
-                        var bytes = Encoding.UTF8.GetBytes("""{"ok":true,"result":{"@type":"ok","@extra":"1697718487.2204423:0:0.08746014090898802"},"jsonrpc":"2.0","id":"1"}""");
+                if (json.method.Equals("getTransactions", StringComparison.InvariantCultureIgnoreCase))
+                {
+                        var bytes = 
+                            Encoding.UTF8.GetBytes("""{"ok":false,"error":"LITE_SERVER_UNKNOWN: cannot locate transaction in block with specified logical time","code":500}""");
+                            //Encoding.UTF8.GetBytes("""{"ok":true,"result":{"@type":"ok","@extra":"1697718487.2204423:0:0.08746014090898802"},"jsonrpc":"2.0","id":"1"}""");
                         await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
                         return;
-                    // }
                 }
 
                 // if (json.method.Equals("shards", StringComparison.InvariantCultureIgnoreCase))
