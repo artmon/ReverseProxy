@@ -23,8 +23,8 @@ public class ReverseProxyMiddleware
 
     public async Task Invoke(HttpContext context)
     {
-        var targetUri = new Uri("http://127.0.0.1/jsonRPC"); //BuildTargetUri(context.Request);
-         //var targetUri = new Uri("http://127.0.0.1:8081/jsonRPC"); //BuildTargetUri(context.Request);
+        var targetUri = new Uri("http://127.0.0.1" + context.Request.Path + context.Request.QueryString); //BuildTargetUri(context.Request);    
+        //var targetUri = new Uri("http://127.0.0.1:8081/jsonRPC"); //BuildTargetUri(context.Request);
 
         if (targetUri != null)
         {
@@ -55,14 +55,16 @@ public class ReverseProxyMiddleware
                 //     // }
                 // }
                 //
-                
-                if (json.method.Equals("getTransactions", StringComparison.InvariantCultureIgnoreCase))
+
+                if (json.method.Equals("getTransactions", StringComparison.InvariantCultureIgnoreCase) 
+                    && json.@params.address.Equals("EQDCUeT25s9kTtKZnwR1MjVChUvlyOpJxqrBKnBSed8MCYft") )
+                    // && json.@params.lt > 0)
                 {
-                        var bytes = 
-                            Encoding.UTF8.GetBytes("""{"ok":false,"error":"LITE_SERVER_UNKNOWN: cannot locate transaction in block with specified logical time","code":500}""");
-                            //Encoding.UTF8.GetBytes("""{"ok":true,"result":{"@type":"ok","@extra":"1697718487.2204423:0:0.08746014090898802"},"jsonrpc":"2.0","id":"1"}""");
-                        await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
-                        return;
+                    // var bytes =
+                    //     Encoding.UTF8.GetBytes("""{"ok":false,"error":"LITE_SERVER_UNKNOWN: cannot locate transaction in block with specified logical time","code":500}""");
+                    // //Encoding.UTF8.GetBytes("""{"ok":true,"result":{"@type":"ok","@extra":"1697718487.2204423:0:0.08746014090898802"},"jsonrpc":"2.0","id":"1"}""");
+                    // await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
+                    // return;
                 }
 
                 // if (json.method.Equals("shards", StringComparison.InvariantCultureIgnoreCase))
@@ -77,15 +79,54 @@ public class ReverseProxyMiddleware
                 //         return;
                 //     }
                 // }
-                
-                if (json.method.Equals("estimateFee", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    
-                    var bytes = Encoding.UTF8.GetBytes("""{"ok":true,"result":{"@type":"query.fees","source_fees":{"@type":"fees","in_fwd_fee":603200,"storage_fee":1,"gas_fee":0,"fwd_fee":0},"destination_fees":[],"@extra":"1714044475.2637854:1:0.0023233219538612015"},"jsonrpc":"2.0","id":"1"}""");
-                    await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
-                    return;
-                }
+
+                // if (json.method.Equals("estimateFee", StringComparison.InvariantCultureIgnoreCase))
+                // {
+                //     var bytes = Encoding.UTF8.GetBytes(
+                //         """{"ok":true,"result":{"@type":"query.fees","source_fees":{"@type":"fees","in_fwd_fee":603200,"storage_fee":1,"gas_fee":0,"fwd_fee":0},"destination_fees":[],"@extra":"1714044475.2637854:1:0.0023233219538612015"},"jsonrpc":"2.0","id":"1"}""");
+                //     await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
+                //     return;
+                // }
             }
+
+            // if (context.Request.Path.ToString().Contains("getMasterchainInfo"))
+            // {
+            //     context.Response.StatusCode = 500;
+            //     var bytes = Encoding.UTF8.GetBytes("""{"ok":false,"error":"LITE_SERVER_UNKNOWN: cannot locate transaction in block with specified logical time","code":500}""");
+            //     await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
+            //     return;
+            // }
+            //
+
+            // if (context.Request.Path.ToString().Contains("getBlockTransactions"))
+            // {
+            //     context.Response.StatusCode = 500;
+            //     var bytes = Encoding.UTF8.GetBytes("""
+            //                                        {
+            //                                          "ok": false,
+            //                                          "error": "LITE_SERVER_NOTREADY: cannot find block (0,6000000000000000) seqno=21372799: ltdb: block not found (possibly out of sync: shard_client_seqno=19901500 ls_seqno=19901500)",
+            //                                          "code": 500
+            //                                        }
+            //                                        """);
+            //     await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
+            //     return;
+            // }
+            //
+            //
+            // if (context.Request.Path.ToString().Contains("shards"))
+            // {
+            //     context.Response.StatusCode = 500;
+            //     var bytes = Encoding.UTF8.GetBytes("""
+            //                                        {
+            //                                          "ok": false,
+            //                                          "error": "LITE_SERVER_NOTREADY: cannot find block (-1,8000000000000000) seqno=19902557: ltdb: block not found (last known masterchain block: 19901560)",
+            //                                          "code": 500
+            //                                        }
+            //                                        """);
+            //     await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
+            //     return;
+            // }
+
 
             var targetRequestMessage = CreateTargetMessage(context, targetUri);
 
